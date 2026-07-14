@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mazex — Maze Solver Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#111214;
+  --text:#e4e4e2;
+  --muted:#8a8a8a;
+  --border:#262729;
+
+  --font-body:'Inter',-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:16px;
+  line-height:1.65;
+}
+
+a{
+  color:inherit;
+  text-decoration:underline;
+  text-underline-offset:3px;
+  text-decoration-color:var(--border);
+}
+
+a:hover{
+  text-decoration-color:var(--text);
+}
+
+a:focus-visible{
+  outline:1px solid var(--muted);
+  outline-offset:2px;
+}
+
+.container{
+  max-width:640px;
+  margin:0 auto;
+  padding:80px 24px 100px;
+}
+
+header{margin-bottom:64px;}
+
+header .eyebrow{
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  color:var(--muted);
+  margin-bottom:10px;
+}
+
+header h1{
+  font-size:26px;
+  font-weight:600;
+  margin-bottom:14px;
+}
+
+header .result{
+  font-family:var(--font-mono);
+  font-size:13px;
+  color:var(--muted);
+}
+
+section{
+  padding:40px 0;
+  border-top:1px solid var(--border);
+}
+
+section:last-of-type{
+  border-bottom:1px solid var(--border);
+}
+
+section h2{
+  font-size:13px;
+  font-family:var(--font-mono);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--muted);
+  margin-bottom:20px;
+}
+
+section p{
+  font-size:15.5px;
+  max-width:58ch;
+}
+
+section p+p{
+  margin-top:14px;
+}
+
+.roles{
+  display:flex;
+  flex-direction:column;
+  gap:28px;
+}
+
+.role-label{
+  font-family:var(--font-mono);
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:8px;
+}
+
+.names{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 16px;
+  font-size:15px;
+}
+
+.names a{
+  color:inherit;
+  text-decoration:none;
+  border-bottom:1px solid transparent;
+  transition:border-color .2s ease;
+}
+
+.names a:hover{
+  border-bottom-color:var(--text);
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14.5px;
+}
+
+table td{
+  padding:10px 0;
+  border-top:1px solid var(--border);
+  vertical-align:top;
+}
+
+table tr:first-child td{
+  border-top:none;
+}
+
+table td:first-child{
+  font-family:var(--font-mono);
+  color:var(--muted);
+  width:38%;
+  padding-right:16px;
+}
+
+.figure{
+  margin-top:18px;
+  border:1px dashed var(--border);
+  border-radius:4px;
+  display:block;
+  width:100%;
+  color:var(--muted);
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  overflow:hidden;
+  line-height:0;
+}
+
+.figure img{
+  display:block;
+  width:100%;
+  height:auto;
+}
+
+.figure.empty{
+  aspect-ratio:16/10;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1.5;
+}
+
+.figure-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-top:18px;
+}
+
+.figure-grid .figure{
+  margin-top:0;
+}
+
+.caption{
+  font-family:var(--font-mono);
+  font-size:12px;
+  color:var(--muted);
+  margin-top:8px;
+}
+
+.code-block{
+  margin-top:18px;
+  border:1px solid var(--border);
+  border-radius:4px;
+  background:#0b0c0d;
+  overflow:hidden;
+}
+
+.code-block .code-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:9px 14px;
+  border-bottom:1px solid var(--border);
+  font-family:var(--font-mono);
+  font-size:11.5px;
+  color:var(--muted);
+}
+
+.code-block pre{
+  padding:16px 18px;
+  overflow-x:auto;
+  margin:0;
+}
+
+.code-block code{
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  line-height:1.7;
+  color:var(--text);
+  white-space:pre;
+}
+
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-top:18px;
+}
+
+.gallery-item{
+  position:relative;
+  border:1px dashed var(--border);
+  border-radius:4px;
+  aspect-ratio:1/1;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--muted);
+  font-family:var(--font-mono);
+  font-size:10.5px;
+  text-align:center;
+  padding:6px;
+}
+
+.gallery-item img,
+.gallery-item video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.gallery-item img{
+  cursor:zoom-in;
+}
+
+.gallery-item .badge{
+  position:absolute;
+  top:5px;
+  left:5px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  color:var(--muted);
+  font-family:var(--font-mono);
+  font-size:9.5px;
+  padding:1px 5px;
+  border-radius:3px;
+  pointer-events:none;
+  z-index:1;
+}
+
+.list-links{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.list-links a{
+  font-size:15.5px;
+  color:inherit;
+  text-decoration:none;
+  border-bottom:1px solid var(--border);
+  padding-bottom:2px;
+  width:fit-content;
+  transition:border-color .2s ease;
+}
+
+.list-links a:hover{
+  border-bottom-color:var(--text);
+}
+
+@media(max-width:600px){
+  .gallery-grid{
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+  }
+
+  .gallery-item{
+    font-size:12px;
+  }
+
+  .gallery-item .badge{
+    font-size:11px;
+    padding:2px 6px;
+  }
+}
+
+/* Button */
+.link-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:18px;
+  padding:10px 16px;
+  border:1px solid var(--border);
+  border-radius:4px;
+  background:transparent;
+  color:var(--text);
+  font-family:var(--font-mono);
+  font-size:13px;
+  text-decoration:none;
+  transition:border-color .2s ease;
+}
+
+.link-button:hover{
+  border-color:var(--text);
+}
+
+footer{
+  margin-top:64px;
+  font-size:13px;
+  color:var(--muted);
+  font-family:var(--font-mono);
+}
+
+@media(max-width:600px){
+  .container{
+    padding:56px 20px 80px;
+  }
+
+  .figure-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+/* Lightbox */
+.lightbox-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(10,10,11,0.94);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+  padding:40px 20px;
+  cursor:zoom-out;
+  animation:lightbox-fade .15s ease;
+}
+
+.lightbox-overlay.open{
+  display:flex;
+}
+
+@keyframes lightbox-fade{
+  from{opacity:0;}
+  to{opacity:1;}
+}
+
+.lightbox-overlay img{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  border-radius:4px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  cursor:default;
+}
+
+.lightbox-close{
+  position:fixed;
+  top:20px;
+  right:24px;
+  width:36px;
+  height:36px;
+  border:1px solid var(--border);
+  border-radius:4px;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-mono);
+  font-size:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  z-index:1001;
+}
+
+.lightbox-close:hover{
+  border-color:var(--text);
+}
+
+.lightbox-counter{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  font-family:var(--font-mono);
+  font-size:12px;
+  color:var(--muted);
+  z-index:1001;
+}
+
+.lightbox-nav{
+  position:fixed;
+  top:50%;
+  transform:translateY(-50%);
+  width:40px;
+  height:40px;
+  border:1px solid var(--border);
+  border-radius:4px;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-mono);
+  font-size:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  z-index:1001;
+}
+
+.lightbox-nav:hover{
+  border-color:var(--text);
+}
+
+.lightbox-nav.prev{left:20px;}
+.lightbox-nav.next{right:20px;}
+
+@media(max-width:600px){
+  .lightbox-nav{display:none;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+<div class="eyebrow">Project documentation</div>
+<h1>Mazex — Maze Solver Robot</h1>
+<div class="result">1st place · IEEE SB GECT Maze Solver Competition · GEC Thrissur</div>
+</header>
+
+<section>
+<h2>Introduction</h2>
+
+<p>
+Team Mazex participated in the Maze Solver Competition, organized by IEEE SB GECT at Government Engineering College (GEC), Thrissur. Competing against teams from across Kerala, our robot successfully navigated every section of the maze, securing 1st place in the competition.
+</p>
+
+<p>
+This website documents our journey, including the design, testing, and development throughout the project.
+</p>
+</section>
+
+<section>
+<h2>Team</h2>
+
+<div class="roles">
+
+<div>
+<div class="role-label">Tech</div>
+
+<div class="names">
+<a href="https://www.linkedin.com/in/nakul-g-176b22387/" target="_blank">Nakul</a>
+<a href="https://www.linkedin.com/in/vyshakh-rajesh/" target="_blank">Vyshakh</a>
+<a href="https://www.linkedin.com/in/akshaya-k-joshy-608030302/" target="_blank">Akshaya</a>
+</div>
+
+</div>
+
+<div>
+
+<div class="role-label">Design</div>
+
+<div class="names">
+<a href="https://www.linkedin.com/in/adijagath-t-s-3342aa3a5/" target="_blank">Adijagath</a>
+<a href="https://s-kailas.github.io/" target="_blank">Kailas</a>
+</div>
+
+</div>
+
+</div>
+</section>
+
+<section>
+
+<h2>Components</h2>
+
+<table>
+<tr><td>Microcontroller</td><td>Arduino Nano V3.0</td></tr>
+<tr><td>Sensor</td><td>VL53L0X ToF distance sensor</td></tr>
+<tr><td>Motor</td><td>N20 metal gear motor (6V, 600rpm)</td></tr>
+<tr><td>Buck converter</td><td>LM2596</td></tr>
+<tr><td>Motor driver</td><td>TB6612FNG dual DC motor driver</td></tr>
+</table>
+
+</section>
+
+<section>
+
+<h2>Circuit Diagram</h2>
+
+<div class="figure">
+<img src="image.png"
+alt="Mazex circuit diagram"
+onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='image.png not found';">
+</div>
+
+<div class="caption">
+Full wiring schematic of the Mazex robot.
+</div>
+
+<a class="link-button"
+href="https://app.cirkitdesigner.com/project/a7d09d0e-25fa-4beb-a5ae-cfaa5a80db88"
+target="_blank">
+Open Circuit Design
+</a>
+
+</section>
+
+<section>
+
+<h2>Program</h2>
+
+<p>
+The firmware runs a PD control loop over three ToF sensors, with a soft deadband to keep the robot gliding straight and exponential virtual bumpers to avoid wall clipping in tight corners.
+</p>
+
+<div class="code-block">
+<div class="code-head">
+<span>maze_solver.ino</span>
+<span>C++</span>
+</div>
+<pre><code>// 3. Smooth "Soft Deadband" PD Calculation
+float raw_error = filtered_L - filtered_R;
+float error = 0.0;
+
+// Instead of jumping instantly, the error ramps up
+// smoothly once outside the deadband
+if (raw_error &gt; DEADBAND) {
+  error = raw_error - DEADBAND;
+} else if (raw_error &lt; -DEADBAND) {
+  error = raw_error + DEADBAND;
+}
+
+// Quicker derivative response to catch fast drifts earlier
+float raw_derivative = error - last_error;
+derivative = (0.4 * raw_derivative) + (0.6 * derivative);
+last_error = error;
+
+float steering_correction = (KP * error) + (KD * derivative);</code></pre>
+</div>
+
+<a class="link-button"
+href="https://github.com/S-kailas/mazex-documentation/blob/main/maze_solver.cpp"
+target="_blank">
+Read More on GitHub
+</a>
+
+</section>
+
+<section>
+
+<h2>CAD Design</h2>
+
+<div class="figure-grid">
+
+<div class="figure">
+<img src="bottom-layer.jpg"
+alt="Mazex CAD render 1"
+onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='bottom-layer.jpg not found';">
+</div>
+
+<div class="figure">
+<img src="bottom-layer(1).jpg"
+alt="Mazex CAD render 2"
+onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='cad-2.jpg not found';">
+</div>
+
+</div>
+
+<div class="caption">
+Chassis and sensor mount design.
+</div>
+
+</section>
+
+<section>
+
+<h2>Gallery</h2>
+<div class="caption">
+Every image tells a part of our journey
+</div>
+
+
+<div class="gallery-grid" id="gallery-grid">
+
+<div class="gallery-item">
+<img src="/picture/1.jpg" alt="Gallery image 1" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='1.jpg not found';">
+<span class="badge">1</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/2.jpg" alt="Gallery image 2" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='2.jpg not found';">
+<span class="badge">2</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/3.jpg" alt="Gallery image 3" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='3.jpg not found';">
+<span class="badge">3</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/4.jpg" alt="Gallery image 4" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='4.jpg not found';">
+<span class="badge">4</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/5.jpg" alt="Gallery image 5" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='5.jpg not found';">
+<span class="badge">5</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/6.jpg" alt="Gallery image 6" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='6.jpg not found';">
+<span class="badge">6</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/7.jpg" alt="Gallery image 7" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='7.jpg not found';">
+<span class="badge">7</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/8.jpg" alt="Gallery image 8" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='8.jpg not found';">
+<span class="badge">8</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/9.jpg" alt="Gallery image 9" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='9.jpg not found';">
+<span class="badge">9</span>
+</div>
+
+<div class="gallery-item">
+<video src="/picture/10.mp4" autoplay muted loop playsinline controls onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='10.mp4 not found';"></video>
+<span class="badge">10</span>
+</div>
+
+<div class="gallery-item">
+<video src="/picture/11.mp4" autoplay muted loop playsinline controls onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='11.mp4 not found';"></video>
+<span class="badge">11</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/12.jpg" alt="Gallery image 12" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='12.jpg not found';">
+<span class="badge">12</span>
+</div>
+
+<div class="gallery-item">
+<video src="/picture/13.mp4" autoplay muted loop playsinline controls onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='13.mp4 not found';"></video>
+<span class="badge">13</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/14.jpg" alt="Gallery image 14" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='14.jpg not found';">
+<span class="badge">14</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/15.jpg" alt="Gallery image 15" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='15.jpg not found';">
+<span class="badge">15</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/16.jpg" alt="Gallery image 16" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='16.jpg not found';">
+<span class="badge">16</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/17.jpg" alt="Gallery image 17" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='17.jpg not found';">
+<span class="badge">17</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/18.jpg" alt="Gallery image 18" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='18.jpg not found';">
+<span class="badge">18</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/19.jpg" alt="Gallery image 19" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='19.jpg not found';">
+<span class="badge">19</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/20.jpg" alt="Gallery image 20" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='20.jpg not found';">
+<span class="badge">20</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/21.jpg" alt="Gallery image 21" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='21.jpg not found';">
+<span class="badge">21</span>
+</div>
+
+<div class="gallery-item">
+<video src="/picture/22.mp4" autoplay muted loop playsinline controls onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='22.mp4 not found';"></video>
+<span class="badge">22</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/23.jpg" alt="Gallery image 23" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='23.jpg not found';">
+<span class="badge">23</span>
+</div>
+
+<div class="gallery-item">
+<img src="/picture/24.jpg" alt="Gallery image 24" loading="lazy" onerror="this.parentElement.classList.add('empty'); this.style.display='none'; this.parentElement.textContent='24.jpg not found';">
+<span class="badge">24</span>
+</div>
+
+</div>
+
+
+</section>
+
+<section>
+
+<h2>Special Thanks</h2>
+
+
+<div class="list-links" style="margin-top:18px;">
+<a href="http://ee.cet.ac.in/faculty/nmd.html" target="_blank">Dr. Mayadevi N.</a>
+<a href="https://www.linkedin.com/in/kala-jayan-35054a74/" target="_blank">Kala Jayan</a>
+<!--<a href="https://ieeesbgect.example.com" target="_blank">Chettan</a>-->
+</div>
+
+</section>
+
+<footer>
+© 2026 Team Mazex
+</footer>
+
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox-overlay" id="lightbox-overlay">
+  <button class="lightbox-close" id="lightbox-close" aria-label="Close">&#10005;</button>
+  <button class="lightbox-nav prev" id="lightbox-prev" aria-label="Previous">&#8249;</button>
+  <img id="lightbox-img" src="" alt="">
+  <button class="lightbox-nav next" id="lightbox-next" aria-label="Next">&#8250;</button>
+  <div class="lightbox-counter" id="lightbox-counter"></div>
+</div>
+
+<script>
+(function(){
+  var grid = document.getElementById('gallery-grid');
+  var overlay = document.getElementById('lightbox-overlay');
+  var lbImg = document.getElementById('lightbox-img');
+  var counter = document.getElementById('lightbox-counter');
+  var closeBtn = document.getElementById('lightbox-close');
+  var prevBtn = document.getElementById('lightbox-prev');
+  var nextBtn = document.getElementById('lightbox-next');
+
+  // Only images get a lightbox (videos already have native controls/fullscreen)
+  var images = Array.prototype.slice.call(grid.querySelectorAll('img'));
+  var currentIndex = -1;
+
+  function openLightbox(index){
+    if(index < 0 || index >= images.length) return;
+    currentIndex = index;
+    var img = images[index];
+    lbImg.src = img.src;
+    lbImg.alt = img.alt || '';
+    counter.textContent = (index + 1) + ' / ' + images.length;
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox(){
+    overlay.classList.remove('open');
+    lbImg.src = '';
+    document.body.style.overflow = '';
+  }
+
+  function showNext(){
+    openLightbox((currentIndex + 1) % images.length);
+  }
+
+  function showPrev(){
+    openLightbox((currentIndex - 1 + images.length) % images.length);
+  }
+
+  images.forEach(function(img, i){
+    img.addEventListener('click', function(){
+      openLightbox(i);
+    });
+  });
+
+  closeBtn.addEventListener('click', closeLightbox);
+  nextBtn.addEventListener('click', function(e){ e.stopPropagation(); showNext(); });
+  prevBtn.addEventListener('click', function(e){ e.stopPropagation(); showPrev(); });
+
+  // Clicking the dark backdrop (not the image itself) closes it
+  overlay.addEventListener('click', function(e){
+    if(e.target === overlay){
+      closeLightbox();
+    }
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(!overlay.classList.contains('open')) return;
+    if(e.key === 'Escape') closeLightbox();
+    if(e.key === 'ArrowRight') showNext();
+    if(e.key === 'ArrowLeft') showPrev();
+  });
+})();
+</script>
+
+</body>
+</html>
